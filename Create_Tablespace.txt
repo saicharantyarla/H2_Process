@@ -1,0 +1,67 @@
+Tablespace Creation (Permanent)
+===========================
+
+Inputs
+Name of the tablespace
+<tablespace_name>
+
+Syntax:
+create tablespace <tablespace_name_input> datafile 'Identify the path'/tablespace_name_01.dbf' size 500m autoextend on;
+
+Check if tablespace with same name exist. If it exist inform user.(EXIT)
+select tablespace_name from dba_tablespaces where tablespace_name='<tablespace_name>';
+
+Identifying datafile path:
+1. Check exising datafiles path
+
+Query -- select name from v$datafile;
+
+/u02/oradata/dbsm/datafile/system.dbf;
+/u01/oradata/dbsm/datafile/users_01.dbf;
+
+Condition 1: if the output has only one file system:
+Check the available space in the file system. If used space is above 80% inform user. (EXIT)
+Check after adding the datafile the file system should not cross 80%. If it crosses, get a confirmation from the user if you need to proceed.
+
+Condition 2: if the output has more than 1 file.
+Check the available space in the file system one after the other. When you find the space is less than 80% you can use the file system.
+Check after adding the datafile the file system should not cross 80%. If it crosses go for the next file system till you check the last one. Use the least used file system. 
+If all the file systems are above 80% inform user. (EXIT)
+
+2. Execute the command:
+create tablespace <tablespace_name_input> datafile '/u01/oradata/dbsm/datafile/DEMO_01.dbf' size 500m autoextend on;
+
+The output would be "Tablespace Created". Any other error report to the user.
+
+Standards:
+tablespace_size is 500m;
+default autoextent is on;
+if all file systems are above 80% tablespace will be created.
+
+Tablespace Creation (Undo)
+===========================
+All above checks except datafile name. 
+
+No Inputs required from user.
+
+tablespace name: Check the number of undo tablespaces(n).Name of the undo tablespace would be UNDOTBS_n+1.
+select tablespace_name from dba_tablespaces where contents='UNDO'
+
+Check if tablespace with same name exist. If it exist inform user.(EXIT)
+select tablespace_name from dba_tablespaces where tablespace_name='<tablespace_name>';
+
+Create undo <tablespace_name> datafile '/u01/oradata/dbsm/datafile/undotbs_03.dbf' size 500m autoextend on;
+
+Tablespace Creation (Temp)
+==========================
+All checks like permanent tablespace except datafile name.
+
+No Inputs required from user.
+
+tablespace name: Check the number of temp tablespaces(n).Name of the temp tablespace would be TEMP_n+1.
+select tablespace_name from dba_tablespaces where contents='TEMPORARY'
+
+Check if tablespace with same name exist. If it exist inform user.(EXIT)
+select tablespace_name from dba_tablespaces where tablespace_name='<tablespace_name>';
+
+Create temp <tablespace_name> tempfile '/u01/oradata/dbsm/datafile/temp_02.dbf' size 500m autoextend on;
